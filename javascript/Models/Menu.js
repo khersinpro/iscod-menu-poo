@@ -23,6 +23,7 @@ class Menu
         this.#esp             =   esp;
         this.#disp            =   disp;
         this.#htmlUlElement   =   document.createElement('ul');
+        this.#htmlUlElement.addEventListener('click', e => this.#getCustomEvent(e));
     }
 
     /**
@@ -32,7 +33,7 @@ class Menu
     setEsp(esp)
     {
         this.#esp = esp;
-        this.applyStyleForAllLi();
+        this.#applyStyleForAllLi();
         return this;
     }
 
@@ -43,8 +44,8 @@ class Menu
     setDisp(disp)
     {
         this.#disp = disp;
-        this.ApplyStyleForUl();
-        this.applyStyleForAllLi();
+        this.#ApplyStyleForUl();
+        this.#applyStyleForAllLi();
         return this;
     }
 
@@ -55,15 +56,16 @@ class Menu
     addItem(label)
     {
         this.#labels.push(label);
-        this.addItemListForUl(label);
-        this.applyStyleForAllLi();
+        this.#addItemListForUl(label);
+        this.#applyStyleForAllLi();
         return this;
     }
 
     /**
      * Fonction qui génére les labels (les items du menu HTMLIElement) 
+     * @param {string} label
      */
-    generatieListItem(label)
+    #generatieListItem(label)
     {
         const textNode      =   document.createTextNode(label);     
         const li            =   document.createElement('li');
@@ -73,12 +75,13 @@ class Menu
 
     /**
      * Fonction qui retourne l'objet menu
+     * @returns {HTMLUListElement} 
      */
     getObjDOM() 
     {
-        this.#labels.forEach(label => this.addItemListForUl(label));
-        this.ApplyStyleForUl();
-        this.applyStyleForAllLi();
+        this.#labels.forEach(label => this.#addItemListForUl(label));
+        this.#ApplyStyleForUl();
+        this.#applyStyleForAllLi();
 
         return this.#htmlUlElement;
     }   
@@ -86,12 +89,12 @@ class Menu
 
     /**
      * Génére le style pour un élement li
-     * @returns string
+     * @returns {string}
      */
-    generateLiStyle()
+    #generateLiStyle()
     {
-        const liHoriztonTalStyle    =   `margin-right: ${this.#esp}px; margin-left: ${this.#esp}px; margin-top: 30px; margin-bottom: 30px;`;
-        const liVerticalStyle       =   `margin-right: 30px; margin-left: 30px; margin-top: ${this.#esp}px; margin-bottom: ${this.#esp}px;`;
+        const liHoriztonTalStyle    =   `padding-right: ${this.#esp}px; padding-left: ${this.#esp}px; padding-top: 30px; padding-bottom: 30px;`;
+        const liVerticalStyle       =   `padding-right: 30px; padding-left: 30px; padding-top: ${this.#esp}px; padding-bottom: ${this.#esp}px;`;
         return this.#disp === 0 ? liHoriztonTalStyle : liVerticalStyle;
     }
 
@@ -99,7 +102,7 @@ class Menu
      * Génére le style pour un élément ul
      * @returns string
      */
-    generateUlStyle()
+    #generateUlStyle()
     {
         const ulBaseStyle         =   "display: flex; list-style: none; background: #006266; color: #ffffff; font-weight: bold; text-align: center; height: 100%; width: 100%;";
         const ulHorizontalStyle   =   ulBaseStyle + "flex-wrap: wrap; justify-content: center;";
@@ -110,23 +113,45 @@ class Menu
     /**
      * Applique le style css correspondant pour chaque li de l'élement ul
      */
-    applyStyleForAllLi()
+    #applyStyleForAllLi()
     {
         const listLi = this.#htmlUlElement.querySelectorAll('li');
-        const style  = this.generateLiStyle();
-        listLi.forEach(li => li.style.cssText = style)
+        const style  = this.#generateLiStyle();
+        listLi.forEach((li, index) => {
+            li.style.cssText = style;
+            li.setAttribute('index', index);
+        })
     }
 
     /**
      * Applique le style pour un élément ul
      */
-    ApplyStyleForUl()
+    #ApplyStyleForUl()
     {
-        this.#htmlUlElement.style.cssText = this.generateUlStyle();
+        this.#htmlUlElement.style.cssText = this.#generateUlStyle();
     }
 
-    addItemListForUl(label)
+    /**
+     * Ajoute un élément li a la liste
+     * @param {string} label contenu dans le li
+     */
+    #addItemListForUl(label)
     {
-        this.#htmlUlElement.appendChild(this.generatieListItem(label));
+        this.#htmlUlElement.appendChild(this.#generatieListItem(label));
+    }
+
+    /**
+     * Fonction qui dispatch l'event "menu_click" et qui set l'attribut du lit dans le detail.index de l'event
+     * @param {MouseEvent} event 
+     */
+    #getCustomEvent(event)
+    {
+        this.#htmlUlElement.dispatchEvent(
+            new CustomEvent("menu_click", {
+                detail: {
+                    index: event.target.getAttribute('index')
+                }        
+            })
+        )
     }
 }
