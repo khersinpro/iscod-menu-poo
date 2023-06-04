@@ -141,7 +141,7 @@ class Menu
     }
 
     /**
-     * Fonction qui dispatch l'event "menu_click" et qui set l'attribut du lit dans le detail.index de l'event
+     * Fonction qui dispatch l'event "menu_click" et qui set l'attribut du li dans le detail.index de l'event
      * @param {MouseEvent} event 
      */
     #getCustomEvent(event)
